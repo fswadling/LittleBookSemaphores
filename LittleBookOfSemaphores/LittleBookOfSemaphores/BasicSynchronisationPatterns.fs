@@ -126,4 +126,39 @@ let barrier2 () = task {
     return ()
 }
 
+let twoPhaseBarrier () = task {
+    let mutable count = 0
+    let nThreads = 5
+    let lockSemaphore = new SemaphoreSlim(1)
+    use turnstile1 = new SemaphoreSlim(0)
+    use turnstile2 = new SemaphoreSlim(1)
 
+    let thread () = task {
+        for n in [1..10] do
+            do! lockSemaphore.WaitAsync()
+            count <- count + 1
+            if (count = nThreads) then
+                do! turnstile2.WaitAsync()
+                do ignore (turnstile1.Release(nThreads))
+            do lockSemaphore.Release() |> ignore
+
+            do! turnstile1.WaitAsync ()
+
+            Console.WriteLine($"CriticalSection {n}")
+
+            do! lockSemaphore.WaitAsync()
+            count <- count - 1
+            if count = 0 then
+                do ignore (turnstile2.Release(nThreads + 1))
+            do lockSemaphore.Release() |> ignore
+
+            do! turnstile2.WaitAsync ()
+        }
+
+    let! _ = 
+        [1..nThreads]
+        |> List.map (fun _ -> thread ())
+        |> Task.WhenAll
+
+    return ()
+}

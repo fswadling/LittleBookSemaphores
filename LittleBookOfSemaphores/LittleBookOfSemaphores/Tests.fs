@@ -32,3 +32,8 @@ let Barrier () =
 let Barrier2 () =
     let x = (BasicSynchronisationPatterns.barrier2 ()).Result
     ()
+
+[<Fact>]
+let TwoPhaseBarrier () =
+    let x = (BasicSynchronisationPatterns.twoPhaseBarrier ()).Result
+    ()
