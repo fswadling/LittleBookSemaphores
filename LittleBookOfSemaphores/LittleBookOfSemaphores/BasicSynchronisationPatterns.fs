@@ -80,4 +80,31 @@ let mutex2 () = task {
     return ()
 }
 
+let barrier () = task {
+    let mutable count = 0
+    use semaphore = new SemaphoreSlim(0)
+    let nThreads = 5
+
+    let barr () = task {
+        let count = Interlocked.Increment(&count)
+        if count = nThreads then
+            ignore (semaphore.Release(count))
+        Console.WriteLine("Waiting")
+        do! semaphore.WaitAsync()
+        Console.WriteLine("Critical section")
+        return ()
+    }
+
+    let! _ =
+        Task.WhenAll
+            [
+                barr ()
+                barr ()
+                barr ()
+                barr ()
+                barr ()
+            ]
+    return ()
+}
+
 

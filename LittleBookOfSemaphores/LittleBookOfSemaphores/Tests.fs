@@ -22,3 +22,8 @@ let ``Mutex1`` () =
 let ``Mutex2`` () =
     let x = (BasicSynchronisationPatterns.mutex2 ()).Result
     ()
+
+[<Fact>]
+let Barrier () = 
+    let x = (BasicSynchronisationPatterns.barrier ()).Result
+    ()
