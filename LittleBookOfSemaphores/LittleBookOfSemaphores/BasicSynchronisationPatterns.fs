@@ -104,6 +104,25 @@ let barrier () = task {
                 barr ()
                 barr ()
             ]
+
+    return ()
+}
+
+// Thread blocking
+let barrier2 () = task {
+    use barrier = new Barrier(participantCount = 5)
+
+    let barr id = Task.Run(fun () ->
+        Console.WriteLine($"Thread {id} waiting at barrier")
+        barrier.SignalAndWait()
+        Console.WriteLine($"Thread {id} passed the barrier")
+    )
+
+    let! _ = 
+        [ 1..5 ]
+        |> List.map barr
+        |> Task.WhenAll
+
     return ()
 }
 
