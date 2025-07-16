@@ -37,3 +37,23 @@ let Barrier2 () =
 let TwoPhaseBarrier () =
     let x = (BasicSynchronisationPatterns.twoPhaseBarrier ()).Result
     ()
+
+[<Fact>]
+let TwoPhaseBarrier2() =
+    let x = (BasicSynchronisationPatterns.twoPhaseBarrier2 ()).Result
+    ()
+
+[<Fact>]
+let Queue1() =
+    let x = (BasicSynchronisationPatterns.leadersAndFollowers ()).Result
+    ()
+
+[<Fact>]
+let Queue2() =
+    let x = (BasicSynchronisationPatterns.leadersAndFollowers2 ()).Result
+    ()
+
+[<Fact>]
+let Queue3() =
+    let x = (BasicSynchronisationPatterns.leadersAndFollowersBlocking ())
+    ()
