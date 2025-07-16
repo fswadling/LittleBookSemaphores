@@ -3,7 +3,7 @@ open System
 open System.Threading
 open System.Threading.Tasks
 
-let rendevous = task {
+let rendevous () = task {
     use semaphoreA = new SemaphoreSlim(0)
     use semaphoreB = new SemaphoreSlim(0)
 
@@ -26,7 +26,7 @@ let rendevous = task {
     return ()
 }
 
-let rendevous2 = task {
+let rendevous2 () = task {
     let source1 = new TaskCompletionSource()
     let source2 = new TaskCompletionSource()
 
@@ -48,3 +48,36 @@ let rendevous2 = task {
 
     return ()
 }
+
+let mutex () = task {
+    use semaphore1 = new SemaphoreSlim(1)
+
+    let a = task {
+        do! semaphore1.WaitAsync ()
+        Console.WriteLine "a"
+        let _ = semaphore1.Release ()
+        return ()
+    }
+
+    let b = task {
+        do! semaphore1.WaitAsync ()
+        Console.WriteLine "b"
+        let _ = semaphore1.Release ()
+        return ()
+    }
+
+    let! _ = Task.WhenAll [ a; b ]
+
+    return ()
+}
+
+// Blocks thread
+let mutex2 () = task {
+    let lockObj = Object()
+    let t1 = Task.Run (fun () -> lock lockObj (fun () -> Console.WriteLine "a"))
+    let t2 = Task.Run (fun () -> lock lockObj (fun () -> Console.WriteLine "b"))
+    let! _ = Task.WhenAll [ t1; t2 ]
+    return ()
+}
+
+
